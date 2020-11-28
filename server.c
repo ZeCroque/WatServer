@@ -17,7 +17,7 @@ int main()
 	printf("Startup...\n");
 	signal(SIGINT, sigHandler);
 	printf("Registered SIGINT handler\n");
-	int listenSocket=createTCPSocket(7777);
+	listenSocket=createTCPSocket(7777);
 	printf("Listen socket created\n");
 
 
