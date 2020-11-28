@@ -1,6 +1,6 @@
 #include "common.h"
 
-int main(int argc, char** argv)
+int main()
 {
   // adresse socket coté client
   static struct sockaddr_in addr_client;
