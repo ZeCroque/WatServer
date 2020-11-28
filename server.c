@@ -11,7 +11,7 @@ int main()
 {
 
 	// socket d'écoute et de service
-	int serviceSocket;
+	int serviceSocket = 0;
 	int pid;
 
 	printf("Startup...\n");
