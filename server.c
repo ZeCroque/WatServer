@@ -69,6 +69,7 @@ void handleCommunication(int serviceSocket)
 	char* inputBuffer;
 	char *outputBuffer = "bien recu";
 	int bufferLength;
+	listenSocket = 0;
 	
 	inputBuffer =(char *)malloc(6 * sizeof(char));
 	bufferLength = read(serviceSocket, inputBuffer, 6 * sizeof(char));
