@@ -18,14 +18,11 @@ int main()
   long lSize;
 
   printf("Démarrage..");
-	
+
+	listenSocket=createTCPSocket(7777);
   // création socket TCP d'écoute
-  if(!listenSocket=createTCPSocket(7777))
-{  	
-	perror("socket creation error");
-  	exit(-1);
-}
-  	printf("connexion acceptée!");
+
+  	printf("socket créée !");
 
   // configuration socket écoute : 5 connexions max en attente
   if (listen(listenSocket, 1) == -1)
