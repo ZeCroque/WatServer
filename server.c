@@ -17,6 +17,8 @@ int main(int argc, char** argv)
 
   long lSize;
 
+  printf("Démarrage..");
+	
   // création socket TCP d'écoute
   if(!listenSocket=createTCPSocket(7777))
 {  	
