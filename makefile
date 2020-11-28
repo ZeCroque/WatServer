@@ -1,7 +1,4 @@
-all: client.out server.out
-
-client.out: client.c common.o
-	gcc -Wall -g -o client.out client.c common.o
+all: server.out
 
 server.out: server.c common.o
 	gcc -Wall -g -o server.out server.c common.o

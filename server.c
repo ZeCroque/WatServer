@@ -37,7 +37,10 @@ int main()
 void sigHandler(int sigNo)
 {
     printf("Received SIGINT, closing listenSocket\n");
-	close(listenSocket);
+	if(listenSocket>0)
+	{
+		close(listenSocket);
+	}
 }
 
 int acceptConnection()
