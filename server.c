@@ -1,59 +1,79 @@
 #include "common.h"
 
+static int listenSocket = 0;
+
+void sigHandler(int sigNo);
+int acceptConnection();
+void handleCommunication(int serviceSocket);
+
 int main()
 {
-  // adresse socket coté client
-  static struct sockaddr_in addr_client;
-  // longueur adresse
-  int lg_addr;
-  // socket d'écoute et de service
-  int listenSocket, serviceSocket;
-  // chaîne reçue du client
-  char *chaine_recue;
-  // chaîne renvoyée au client
-  char *reponse = "bien recu";
-  // nombre d'octets reçus ou envoyés
-  int nb_octets;
 
-  long lSize;
+	// socket d'écoute et de service
+	int serviceSocket;
+	int pid;
 
-  printf("Démarrage..");
-
-	listenSocket=createTCPSocket(7777);
-  // création socket TCP d'écoute
-
-  	printf("socket créée !");
-
-  // configuration socket écoute : 5 connexions max en attente
-  if (listen(listenSocket, 1) == -1)
-  {
-    perror("erreur listen");
-    exit(1);
-  }
-
-  // on attend la connexion du client
-  lg_addr = sizeof(struct sockaddr_in);
-  serviceSocket = accept(listenSocket, (struct sockaddr *)&addr_client, (socklen_t *)&lg_addr);
-  if (serviceSocket == -1)
-  {
-    perror("erreur accept");
-    exit(1);
-  }
-  printf("connexion acceptée!");
-  // la connexion est établie, on attend les données envoyées par le client
-  chaine_recue =(char *)malloc(6 * sizeof(char));
-  nb_octets = read(serviceSocket, chaine_recue, 6 * sizeof(char));
-  printf("taille reçue:%d", nb_octets);
-  printf("message:%s",chaine_recue);
+	printf("Startup...\n");
+	signal(SIGINT, sigHandler);
+	printf("Registered SIGINT handler\n");
+	int listenSocket=createTCPSocket(7777);
+	printf("Listen socket created\n");
 
 
+	while(1)
+	{
+		serviceSocket = acceptConnection();
+		pid=fork();
+		if(!pid)
+		{
+			handleCommunication(serviceSocket);
+			return 0;
+		}
 
-  // on envoie la réponse au client
-  write(serviceSocket, reponse, strlen(reponse)+1);
+	}
+}
 
-  // on ferme les sockets
-  close(serviceSocket);
-  close(listenSocket);
+void sigHandler(int sigNo)
+{
+    printf("Received SIGINT, closing listenSocket\n");
+	close(listenSocket);
+}
 
-  return 0;
+int acceptConnection()
+{
+	static struct sockaddr_in clientAdr;
+	if (listen(listenSocket, 5) == -1)
+	{
+		perror("Error: Listen failed");
+		exit(1);
+	}
+
+	// on attend la connexion du client
+	int adrLength = sizeof(struct sockaddr_in);
+	int serviceSocket = accept(listenSocket, (struct sockaddr *)&clientAdr, (socklen_t *)&adrLength);
+	if (serviceSocket == -1)
+	{
+		perror("Error: Accept failed");
+		exit(1);
+	}
+	printf("Connection accepted");
+	return serviceSocket;
+}
+
+void handleCommunication(int serviceSocket)
+{
+	char* inputBuffer;
+	char *outputBuffer = "bien recu";
+	int bufferLength;
+	
+	inputBuffer =(char *)malloc(6 * sizeof(char));
+	bufferLength = read(serviceSocket, inputBuffer, 6 * sizeof(char));
+	printf("Received size:%d", bufferLength);
+	printf("Message:%s",inputBuffer);
+
+	// on envoie la réponse au client
+	write(serviceSocket, outputBuffer, strlen(outputBuffer)+1);
+
+	// on ferme les sockets
+	close(serviceSocket);
 }
