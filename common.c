@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-int creerSocketTCP(int port)
+int createTCPSocket(int port)
 {
   int sock;
   static struct sockaddr_in addr;

@@ -7,7 +7,7 @@ int main(int argc, char** argv)
   // longueur adresse
   int lg_addr;
   // socket d'écoute et de service
-  int socket_ecoute, socket_service;
+  int listenSocket, serviceSocket;
   // chaîne reçue du client
   char *chaine_recue;
   // chaîne renvoyée au client
@@ -17,23 +17,16 @@ int main(int argc, char** argv)
 
   long lSize;
 
-  int port=7777;
-
-  if(argc==2)
-  {
-    port=strtol(argv[1], NULL, 10);
-  }
-  else
-  {
-    exit(-1);
-  }
-
   // création socket TCP d'écoute
-  socket_ecoute=creerSocketTCP(port);
-
+  if(!listenSocket=createTCPSocket(7777))
+{  	
+	perror("socket creation error");
+  	exit(-1);
+}
+  	printf("connexion acceptée!");
 
   // configuration socket écoute : 5 connexions max en attente
-  if (listen(socket_ecoute, 5) == -1)
+  if (listen(listenSocket, 1) == -1)
   {
     perror("erreur listen");
     exit(1);
@@ -41,18 +34,18 @@ int main(int argc, char** argv)
 
   // on attend la connexion du client
   lg_addr = sizeof(struct sockaddr_in);
-  socket_service = accept(socket_ecoute, (struct sockaddr *)&addr_client, (socklen_t *)&lg_addr);
-  if (socket_service == -1)
+  serviceSocket = accept(listenSocket, (struct sockaddr *)&addr_client, (socklen_t *)&lg_addr);
+  if (serviceSocket == -1)
   {
     perror("erreur accept");
     exit(1);
   }
-
+  printf("connexion acceptée!");
   // la connexion est établie, on attend les données envoyées par le client
-  nb_octets = read(socket_service, &lSize, sizeof(long));
+  /*nb_octets = read(serviceSocket, &lSize, sizeof(long));
   printf("taille reçue :%ld\n",lSize);
   chaine_recue =(char *)malloc(lSize * sizeof(char));
-  nb_octets = read(socket_service, chaine_recue, lSize);
+  nb_octets = read(serviceSocket, chaine_recue, lSize);
   printf("taille effective:%d", nb_octets);
   
   FILE* fichier = NULL;
@@ -67,11 +60,11 @@ int main(int argc, char** argv)
   fclose(fichier);
 
   // on envoie la réponse au client
-  write(socket_service, reponse, strlen(reponse)+1);
-
+  write(serviceSocket, reponse, strlen(reponse)+1);
+  */
   // on ferme les sockets
-  close(socket_service);
-  close(socket_ecoute);
+  close(serviceSocket);
+  close(listenSocket);
 
   return 0;
 }

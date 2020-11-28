@@ -13,6 +13,6 @@
 
 #define TAILLEBUF 64
 
-int creerSocketTCP(int port);
+int createTCPSocket(int port);
 
 #endif

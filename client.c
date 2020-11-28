@@ -28,7 +28,7 @@ int main(int argc, char** argv)
   }
 
   // création socket TCP
-  sock=creerSocketTCP(0);
+  sock=createTCPSocket(0);
 
   // récupération identifiants de la machine serveur
   host_serveur = gethostbyname(hostName);
