@@ -1,4 +1,5 @@
 #include "common.h"
+#include<signal.h>
 
 static int listenSocket = 0;
 
