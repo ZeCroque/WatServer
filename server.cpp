@@ -117,6 +117,7 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 			std::cout<< "Host waiting for party"<<std::endl;
 			break;
 		case MessageType::ClientAdr:
+		{
 			peerInfos.peerType = PeerType::Client;
 			clientsInfos.push_back(&peerInfos);
 			std::cout<<"Client searching for party"<<std::endl<<"Sending host count..."<<std::endl;
@@ -127,12 +128,13 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(&message), sizeof(Message));
 
 			struct sockaddr_in* peersAdr = new struct sockaddr_in[hostsInfos.size()];
-			for(int i = 0; i<hostsInfos.size(); ++i)
+			for(unsigned int i = 0; i<hostsInfos.size(); ++i)
 			{
 				peersAdr[i] = hostsInfos[i]->peerAdr;
 			}
 			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(peersAdr), sizeof(struct sockaddr_in)*hostsInfos.size());
 			break;
+		}
 		case MessageType::HostCount: 
 			break;
 		case MessageType::ClientConnectionRequest:
