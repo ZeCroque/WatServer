@@ -25,7 +25,7 @@ struct PeerInfos
 };
 
 void sigHandler(int sigNo);
-void handleCommunication(PeerInfos& peerInfos);
+void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerInfos*> clientsInfos);
 
 int main()
 {
@@ -44,7 +44,12 @@ int main()
 	std::cout<<"Listen socket created"<<std::endl;
 
 	std::vector<PeerInfos> peersInfos;
+	std::vector<PeerInfos*> hostsInfos;
+	std::vector<PeerInfos*> clientsInfos;
+	
 	peersInfos.reserve(50);
+	hostsInfos.reserve(25);
+	clientsInfos.reserve(25);
 	while(true)
 	{
 		int serviceSocket;
@@ -71,7 +76,7 @@ int main()
 
 		for(auto& peerInfos : peersInfos)
 		{
-			handleCommunication(peerInfos);
+			handleCommunication(peerInfos, hostsInfos, clientsInfos);
 		}
 			/*handleCommunication(serviceSocket);
 			return 0;*/
@@ -89,7 +94,7 @@ void sigHandler(int sigNo)
 	exit(0);
 }
 
-void handleCommunication(PeerInfos& peerInfos)
+void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerInfos*> clientsInfos)
 {
 	std::cout<< inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
 				
@@ -111,9 +116,18 @@ void handleCommunication(PeerInfos& peerInfos)
 		{
 		case MessageType::HostAdr:
 			peerInfos.peerType = PeerType::Host;
-			std::cout<< "Host waiting for party at:"<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl;
+			hostsInfos.push_back(&peerInfos);
+			std::cout<< "Host waiting for party"<<std::endl;
 			break;
-		case MessageType::ClientAdr: 
+		case MessageType::ClientAdr:
+			peerInfos.peerType = PeerType::Client;
+			clientsInfos.push_back(&peerInfos);
+			std::cout<<"Client searching for party"<<std::endl<<"Sending host count..."<<std::endl;
+			Message message;
+			memset(&message, 0, sizeof(message));
+			message.messageType = MessageType::HostCount;
+			*reinterpret_cast<int*>(&message.adr) = hostsInfos.size();
+			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(&message), sizeof(Message));
 			break;
 		case MessageType::HostCount: 
 			break;
