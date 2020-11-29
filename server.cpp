@@ -63,9 +63,12 @@ int main()
 
 		for(auto& peerInfos : peersInfos)
 		{
-			std::cout<< inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
+			if(peerInfos.peerType == PeerType::None)
+			{
+				std::cout<< inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
+				peerInfos.peerType = PeerType::Client;
+			}
 		}
-		std::cout<<"\033[H\033[J"<<std::endl;
 			/*handleCommunication(serviceSocket);
 			return 0;*/
 
