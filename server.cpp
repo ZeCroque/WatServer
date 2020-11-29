@@ -123,7 +123,7 @@ void handleCommunication(PeerInfos& peerInfos)
 			std::cerr<<"Error: Unknown message"<<std::endl;
 			exit(-1);
 		}
-		close(serviceSocket);
+		close(peerInfos.peerServiceSocket);
 	}
 	
 	
