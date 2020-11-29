@@ -96,10 +96,6 @@ void sigHandler(int sigNo)
 
 void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerInfos*> clientsInfos)
 {
-	std::cout<< inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
-				
-				//peerInfos.peerType = PeerType::Client;
-	
 	Message message;
 	message.messageType = MessageType::Error;
 	int receivedSize = read(peerInfos.peerServiceSocket, &message, sizeof(message));
