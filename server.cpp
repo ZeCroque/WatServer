@@ -7,7 +7,7 @@
 
 static int listenSocket = 0;
 
-enum class MessageType {HostAdr = 0, ClientAdr = 1, HostCount = 2, ClientConnectionRequest = 3};
+enum class MessageType {Error = -1, HostAdr = 0, ClientAdr = 1, HostCount = 2, ClientConnectionRequest = 3};
 
 struct Message
 {
@@ -101,13 +101,14 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 				//peerInfos.peerType = PeerType::Client;
 	
 	Message message;
+	message.messageType = MessageType::Error;
 	int receivedSize = read(peerInfos.peerServiceSocket, &message, sizeof(message));
 	if(receivedSize == -1 && errno != EAGAIN)
 	{
 		std::cerr<<"Error: Read error. Errno:"<<errno;
 		exit(-1);
 	}
-	if(receivedSize>-1)
+	if(receivedSize>0)
 	{
 		std::cout<< "Received message from:"<<inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
 		std::cout<<"Received size:"<<receivedSize<<std::endl;
@@ -135,7 +136,7 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 			break;
 		default: 
 			std::cerr<<"Error: Unknown message"<<std::endl;
-			//exit(-1);
+			exit(-1);
 		}
 		//close(peerInfos.peerServiceSocket);
 	}
