@@ -104,7 +104,7 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 	int receivedSize = read(peerInfos.peerServiceSocket, &message, sizeof(message));
 	if(receivedSize == -1 && errno != EAGAIN)
 	{
-		std::cerr<<"Error: Read error";
+		std::cerr<<"Error: Read error. Errno:"<<errno;
 		exit(-1);
 	}
 	if(receivedSize>-1)
