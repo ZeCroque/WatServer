@@ -65,7 +65,7 @@ int main()
 		{
 			std::cout<< inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
 		}
-		clear();
+		std::cout<<"\033[H\033[J"<<std::endl;
 			/*handleCommunication(serviceSocket);
 			return 0;*/
 
