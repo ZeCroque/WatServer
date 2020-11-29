@@ -3,7 +3,7 @@
 
 //#include <stdio.h>
 #include <cstdlib>
-//#include <string.h>
+#include <cstring>
 #include <unistd.h>
 //#include <sys/types.h>
 #include <netdb.h>
