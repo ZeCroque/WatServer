@@ -3,6 +3,9 @@
 #include <cerrno>  
 #include <iostream>
 #include <vector>
+#include <fcntl.h>
+
+static int listenSocket = 0;
 
 void sigHandler(int sigNo);
 void handleCommunication(int serviceSocket);
@@ -22,7 +25,7 @@ int main()
 	signal(SIGINT, sigHandler);
 	std::cout<<"Registered SIGINT handler"<<std::endl;
 
-	int listenSocket=createTCPSocket(7777);
+	listenSocket=createTCPSocket(7777);
 	fcntl(listenSocket, F_SETFL, O_NONBLOCK);
 	if (listen(listenSocket, 5) == -1)
 	{
