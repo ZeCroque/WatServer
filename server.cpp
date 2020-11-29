@@ -125,6 +125,13 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 			message.messageType = MessageType::HostCount;
 			*reinterpret_cast<int*>(&message.adr) = hostsInfos.size();
 			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(&message), sizeof(Message));
+
+			struct sockaddr_in* peersAdr = new struct sockaddr_in[hostsInfos.size()];
+			for(int i = 0; i<hostsInfos.size(); ++i)
+			{
+				peersAdr[i] = hostsInfos[i]->peerAdr;
+			}
+			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(peersAdr), sizeof(struct sockaddr_in)*hostsInfos.size());
 			break;
 		case MessageType::HostCount: 
 			break;
