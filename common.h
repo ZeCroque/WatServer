@@ -2,7 +2,7 @@
 #define common_h
 
 //#include <stdio.h>
-//#include <stdlib.h>
+#include <cstdlib>
 //#include <string.h>
 #include <unistd.h>
 //#include <sys/types.h>

@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <iostream>
+
 
 int createTCPSocket(int port)
 {
@@ -9,7 +11,7 @@ int createTCPSocket(int port)
   sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock == -1)
   {
-    perror("creation socket");
+    std::cerr<<"creation socket"<<std::endl;
     exit(1);
   }
 
@@ -19,7 +21,7 @@ int createTCPSocket(int port)
   addr.sin_addr.s_addr=htonl(INADDR_ANY);
   if( bind(sock, (struct sockaddr*)&addr, sizeof(addr))== -1)
   {
-    perror("erreur bind socket");
+    std::cerr<<"erreur bind socket"<<std::endl;
     exit(1);
   }
   return sock;
