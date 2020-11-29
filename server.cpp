@@ -32,16 +32,16 @@ int main()
 	std::cout<<"Startup..."<<std::endl;
 	
 	signal(SIGINT, sigHandler);
-	std::cout<<"Registered SIGINT handler"<<std::endl;
+	std::cout<<"Registered SIGINT handler."<<std::endl;
 
 	listenSocket=createTCPSocket(7777);
 	fcntl(listenSocket, F_SETFL, O_NONBLOCK);
 	if (listen(listenSocket, 5) == -1)
 	{
-		std::cerr<<"Error: Listen failed"<<std::endl;
+		std::cerr<<"Error: Listen failed. Errno:"<<errno<<std::endl;
 		exit(1);
 	}
-	std::cout<<"Listen socket created"<<std::endl;
+	std::cout<<"Listen socket created."<<std::endl;
 
 	std::vector<PeerInfos> peersInfos;
 	std::vector<PeerInfos*> hostsInfos;
@@ -78,9 +78,6 @@ int main()
 		{
 			handleCommunication(peerInfos, hostsInfos, clientsInfos);
 		}
-			/*handleCommunication(serviceSocket);
-			return 0;*/
-
 	}
 }
 
@@ -106,41 +103,58 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 	}
 	if(receivedSize>0)
 	{
-		std::cout<< "Received message from:"<<inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
-		std::cout<<"Received size:"<<receivedSize<<std::endl;
+		std::cout<< "Received message from: "<<inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
+		std::cout<<"Received size: "<<receivedSize<<std::endl;
 
 		switch(message.messageType)
 		{
 		case MessageType::HostAdr:
 			peerInfos.peerType = PeerType::Host;
 			hostsInfos.push_back(&peerInfos);
-			std::cout<< "Host waiting for party"<<std::endl;
+			std::cout<< "Peer registered as host."<<std::endl;
 			break;
 		case MessageType::ClientAdr:
 		{
 			peerInfos.peerType = PeerType::Client;
 			clientsInfos.push_back(&peerInfos);
-			std::cout<<"Client searching for party"<<std::endl<<"Sending host count..."<<std::endl;
-			Message message;
-			memset(&message, 0, sizeof(message));
-			message.messageType = MessageType::HostCount;
-			*reinterpret_cast<int*>(&message.adr) = hostsInfos.size();
-			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(&message), sizeof(Message));
-
+			std::cout<<"Peer registered as host."<<std::endl<<"Sending host count..."<<std::endl;
+				
+			Message answer;
+			memset(&answer, 0, sizeof(Message));
+			answer.messageType = MessageType::HostCount;
+			*reinterpret_cast<int*>(&answer.adr) = hostsInfos.size();
+			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(&answer), sizeof(Message));
+			std::cout<<"Host count sent."<<std::endl<<"Sending hosts addresses..."<<std::endl;
+				
 			struct sockaddr_in* peersAdr = new struct sockaddr_in[hostsInfos.size()];
 			for(unsigned int i = 0; i<hostsInfos.size(); ++i)
 			{
 				peersAdr[i] = hostsInfos[i]->peerAdr;
 			}
 			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(peersAdr), sizeof(struct sockaddr_in)*hostsInfos.size());
+			std::cout<<"Addresses sent."<<std::endl;
 			break;
 		}
-		case MessageType::HostCount: 
-			break;
 		case MessageType::ClientConnectionRequest:
+		{
+			std::cout<<"Connection request to host: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl<<"Forwarding..."<<std::endl;
+			Message answer;
+			memset(&answer, 0, sizeof(Message));
+			answer.messageType = MessageType::ClientConnectionRequest;
+			answer.adr = message.messageType;
+			for(auto* hostInfos : hostsInfos)
+			{
+				if(!strcmp(inet_ntoa(hostInfos->peerAdr.sin_addr), inet_ntoa(answer.adr.sin_addr)) && ntohs(hostInfos->peerAdr.sin_port) == ntohs(answer.adr.sin_port))
+				{
+					write(hostInfos->peerServiceSocket, reinterpret_cast<char*>(&answer), sizeof(Message));
+					std::cout<<"Connection request forwarded."<<std::endl;
+					break;
+				}
+			}
 			break;
+		}
 		default: 
-			std::cerr<<"Error: Unknown message"<<std::endl;
+			std::cerr<<"Error: Unexpected message."<<std::endl;
 			exit(-1);
 		}
 		//close(peerInfos.peerServiceSocket);
