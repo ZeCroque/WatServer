@@ -14,6 +14,7 @@ enum class PeerType {None = 0, Client = 1, Host = 2};
 
 struct PeerInfos
 {
+	int peerServiceSocket;
 	struct sockaddr_in peerAdr;
 	PeerType peerType;
 };
@@ -53,13 +54,18 @@ int main()
 			if(serviceSocket>-1)
 			{
 				std::cout<<"Connection accepted"<<std::endl;
-				PeerInfos peerInfos = {clientAdr, PeerType::None};
+				fcntl(serviceSocket, F_SETFL, O_NONBLOCK);
+				PeerInfos peerInfos = {serviceSocket, clientAdr, PeerType::None};
 				peersInfos.push_back(peerInfos);
 			}
 			
 		} while (serviceSocket != -1);
 
-		
+		for(auto& peerInfos : peersInfos)
+		{
+			std::cout<< inet_ntoa(peerInfos.peerAdr.sin_addr)<<":"<<ntohs(peerInfos.peerAdr.sin_port)<<std::endl;
+		}
+		clear();
 			/*handleCommunication(serviceSocket);
 			return 0;*/
 
@@ -73,6 +79,7 @@ void sigHandler(int sigNo)
 	{
 		close(listenSocket);
 	}
+	exit(0);
 }
 
 void handleCommunication(int serviceSocket)
