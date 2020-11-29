@@ -135,7 +135,7 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 			break;
 		default: 
 			std::cerr<<"Error: Unknown message"<<std::endl;
-			exit(-1);
+			//exit(-1);
 		}
 		//close(peerInfos.peerServiceSocket);
 	}
