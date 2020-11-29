@@ -141,7 +141,7 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 			Message answer;
 			memset(&answer, 0, sizeof(Message));
 			answer.messageType = MessageType::ClientConnectionRequest;
-			answer.adr = message.messageType;
+			answer.adr = message.adr;
 			for(auto* hostInfos : hostsInfos)
 			{
 				if(!strcmp(inet_ntoa(hostInfos->peerAdr.sin_addr), inet_ntoa(answer.adr.sin_addr)) && ntohs(hostInfos->peerAdr.sin_port) == ntohs(answer.adr.sin_port))
