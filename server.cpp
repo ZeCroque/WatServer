@@ -69,7 +69,7 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 {
 	struct sockaddr_in adr;
 	memset(&adr, 0, sizeof(adr));
-	int adrLength = sizeof(adr);
+	socklen_t adrLength = sizeof(adr);
 	
 	Message message;
 	message.messageType = MessageType::Error;
