@@ -37,7 +37,7 @@ int main()
 	std::cout<<"Registered SIGINT handler."<<std::endl;
 
 	listenSocket=createUDPSocket(7777);
-	std::cout<<"Listen socket created."<<std::endl;
+	std::cout<<"Socket created."<<std::endl;
 	
 	hostsInfos.reserve(25);
 	clientsInfos.reserve(25);
@@ -49,7 +49,7 @@ int main()
 
 void sigHandler(int sigNo)
 {
-    printf("Received SIGINT, closing listenSocket\n");
+    printf("Received SIGINT, closing listenSocket, deleting addresses\n");
 	if(listenSocket>0)
 	{
 		close(listenSocket);
@@ -71,8 +71,7 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 	memset(&adr, 0, sizeof(adr));
 	socklen_t adrLength = sizeof(adr);
 	
-	Message message;
-	message.messageType = MessageType::Error;
+	Message message = {MessageType::Error,{0, 0, {{{0,0,0,0}}}, {0}}};
 	int receivedSize = recvfrom(listenSocket, reinterpret_cast<void*>(&message), sizeof(Message), 0, reinterpret_cast<struct sockaddr*>(&adr), &adrLength);
 
 	std::cout<< "Received message from: "<<inet_ntoa(adr.sin_addr)<<":"<<ntohs(adr.sin_port)<<std::endl;
@@ -93,14 +92,12 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 	{
 		peerInfos->peerType = PeerType::Client;
 		clientsInfos.push_back(peerInfos);
-		std::cout<<"Peer registered as client."<<std::endl<<"Sending client port..."<<std::endl;
+		std::cout<<"Peer registered as client."<<std::endl;
 			
-		Message answer;
-		memset(&answer, 0, sizeof(Message));
-		answer.messageType = MessageType::HostCount;
+		Message answer = {MessageType::HostCount, {0, 0, {{{0,0,0,0}}}, {0}}};
 		*reinterpret_cast<int*>(&answer.adr) = hostsInfos.size();
 		sendto(listenSocket, reinterpret_cast<char*>(&answer), sizeof(Message), 0, reinterpret_cast<struct sockaddr*>(&adr), sizeof(adr));
-		std::cout<<"Host count sent."<<std::endl<<"Sending hosts addresses..."<<std::endl;
+		std::cout<<"Host count sent."<<std::endl;
 			
 		struct sockaddr_in* peersAdr = new struct sockaddr_in[hostsInfos.size()];
 		for(unsigned int i = 0; i<hostsInfos.size(); ++i)
@@ -108,16 +105,14 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 			peersAdr[i] = hostsInfos[i]->peerAdr;
 		}
 		sendto(listenSocket, reinterpret_cast<char*>(peersAdr), sizeof(struct sockaddr_in)*hostsInfos.size(), 0, reinterpret_cast<struct sockaddr*>(&adr), sizeof(adr));
+		delete[] peersAdr;
 		std::cout<<"Addresses sent."<<std::endl;
 		break;
 	}
 	case MessageType::ClientConnectionRequest:
 	{
-		std::cout<<"Connection request to host: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl<<"Forwarding..."<<std::endl;
-		Message answer;
-		memset(&answer, 0, sizeof(Message));
-		answer.messageType = MessageType::ClientConnectionRequest;
-		answer.adr = adr;
+		std::cout<<"Connection request to host: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl;
+		Message answer = {MessageType::ClientConnectionRequest, adr};
 		sendto(listenSocket, reinterpret_cast<char*>(&answer), sizeof(Message), 0, reinterpret_cast<struct sockaddr*>(&message.adr), sizeof(message.adr));
 		std::cout<<"Connection request forwarded."<<std::endl;
 		break;
