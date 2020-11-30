@@ -7,7 +7,7 @@
 
 static int listenSocket = 0;
 
-enum class MessageType {Error = -1, HostAdr = 0, ClientAdr = 1, HostCount = 2, ClientConnectionRequest = 3};
+enum class MessageType {Error = -1, HostAdr = 0, ClientAdr = 1, HostCount = 2, ClientConnectionRequest = 3, ClientPort = 4};
 
 struct Message
 {
@@ -117,9 +117,15 @@ void handleCommunication(PeerInfos& peerInfos, std::vector<PeerInfos*>& hostsInf
 		{
 			peerInfos.peerType = PeerType::Client;
 			clientsInfos.push_back(&peerInfos);
-			std::cout<<"Peer registered as host."<<std::endl<<"Sending host count..."<<std::endl;
+			std::cout<<"Peer registered as client."<<std::endl<<"Sending client port..."<<std::endl;
 				
 			Message answer;
+			memset(&answer, 0, sizeof(Message));
+			answer.messageType = MessageType::ClientPort;
+			*reinterpret_cast<unsigned short*>(&answer.adr) = peerInfos.peerAdr.sin_port;
+			write(peerInfos.peerServiceSocket, reinterpret_cast<char*>(&answer), sizeof(Message));
+			std::cout<<"Client port sent."<<std::endl<<"Sending host count..."<<std::endl;
+
 			memset(&answer, 0, sizeof(Message));
 			answer.messageType = MessageType::HostCount;
 			*reinterpret_cast<int*>(&answer.adr) = hostsInfos.size();
