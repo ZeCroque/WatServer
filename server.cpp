@@ -71,7 +71,8 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 	memset(&adr, 0, sizeof(adr));
 	socklen_t adrLength = sizeof(adr);
 	
-	Message message = {MessageType::Error,{0, 0, {{{0,0,0,0}}}, {0}}};
+	Message message;
+	memset(&message, 0, sizeof(Message));
 	int receivedSize = recvfrom(listenSocket, reinterpret_cast<void*>(&message), sizeof(Message), 0, reinterpret_cast<struct sockaddr*>(&adr), &adrLength);
 
 	std::cout<< "Received message from: "<<inet_ntoa(adr.sin_addr)<<":"<<ntohs(adr.sin_port)<<std::endl;
@@ -94,7 +95,9 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 		clientsInfos.push_back(peerInfos);
 		std::cout<<"Peer registered as client."<<std::endl;
 			
-		Message answer = {MessageType::HostCount, {0, 0, {{{0,0,0,0}}}, {0}}};
+		Message answer;
+		memset(&answer, 0, sizeof(Message));
+		answer.messageType=MessageType::HostCount;
 		*reinterpret_cast<int*>(&answer.adr) = hostsInfos.size();
 		sendto(listenSocket, reinterpret_cast<char*>(&answer), sizeof(Message), 0, reinterpret_cast<struct sockaddr*>(&adr), sizeof(adr));
 		std::cout<<"Host count sent."<<std::endl;
@@ -111,7 +114,7 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 	}
 	case MessageType::ClientConnectionRequest:
 	{
-		std::cout<<"Connection request to host: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl;
+		std::cout<<"Connection request to host: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<<std::endl;
 		Message answer = {MessageType::ClientConnectionRequest, adr};
 		sendto(listenSocket, reinterpret_cast<char*>(&answer), sizeof(Message), 0, reinterpret_cast<struct sockaddr*>(&message.adr), sizeof(message.adr));
 		std::cout<<"Connection request forwarded."<<std::endl;
