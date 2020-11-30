@@ -5,7 +5,7 @@
 #include <vector>
 #include <fcntl.h>
 
-enum class MessageType {Error = -1, HostAdr = 0, ClientAdr = 1, HostCount = 2, ClientConnectionRequest = 3};
+enum class MessageType {Error = 0, HostPresentation = 1, ClientPresentation = 2, HostCount = 2, ClientConnectionRequest = 3, TestMessage = 4};
 
 struct Message
 {
