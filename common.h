@@ -14,6 +14,6 @@
 
 #define TAILLEBUF 64
 
-int createTCPSocket(int port);
+int createUDPSocket(int port);
 
 #endif
