@@ -83,13 +83,13 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 	
 	switch(message.messageType)
 	{
-	case MessageType::HostAdr:
+	case MessageType::HostPresentation:
 
 		peerInfos->peerType = PeerType::Host;
 		hostsInfos.push_back(peerInfos);
 		std::cout<< "Peer registered as host."<<std::endl;
 		break;
-	case MessageType::ClientAdr:
+	case MessageType::ClientPresentation:
 	{
 		peerInfos->peerType = PeerType::Client;
 		clientsInfos.push_back(peerInfos);
