@@ -5,7 +5,7 @@
 #include <vector>
 #include <fcntl.h>
 
-enum class MessageType {Error = 0, HostPresentation = 1, ClientPresentation = 2, HostCount = 2, ClientConnectionRequest = 3, TestMessage = 4};
+enum class MessageType {Error = 0, HostPresentation = 1, ClientPresentation = 2, HostCount = 2, ClientConnectionRequest = 3, HostAddress = 4};
 
 struct Message
 {
@@ -84,10 +84,15 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 	switch(message.messageType)
 	{
 	case MessageType::HostPresentation:
-
 		peerInfos->peerType = PeerType::Host;
 		hostsInfos.push_back(peerInfos);
 		std::cout<< "Peer registered as host."<<std::endl;
+
+		memset(&message, 0, sizeof(Message));
+		message.adr = adr;
+		message.messageType = MessageType::HostAddress;
+		sendto(listenSocket, reinterpret_cast<char*>(&message), sizeof(Message),0,reinterpret_cast<struct sockaddr*>(&adr), sizeof(adr));
+		std::cout<<"Sent host is own public address."<<std::cout;
 		break;
 	case MessageType::ClientPresentation:
 	{
