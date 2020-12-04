@@ -92,7 +92,7 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 		message.adr = adr;
 		message.messageType = MessageType::HostAddress;
 		sendto(listenSocket, reinterpret_cast<char*>(&message), sizeof(Message),0,reinterpret_cast<struct sockaddr*>(&adr), sizeof(adr));
-		std::cout<<"Sent host is own public address."<<std::cout;
+		std::cout<<"Sent host his own public address."<<std::endl;
 		break;
 	case MessageType::ClientPresentation:
 	{
