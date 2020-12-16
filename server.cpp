@@ -5,7 +5,7 @@
 #include <vector>
 #include <fcntl.h>
 
-enum class MessageType {Error = 0, HostPresentation = 1, ClientPresentation = 2, HostCount = 2, ClientConnectionRequest = 3, HostAddress = 4};
+enum class MessageType {Error = 0, HostPresentation = 1, ClientPresentation = 2, HostCount = 2, ClientConnectionRequest = 3, HostAddress = 4, HostDisconnected = 5};
 
 struct Message
 {
@@ -17,7 +17,6 @@ enum class PeerType {None = 0, Client = 1, Host = 2};
 
 struct PeerInfos
 {
-	int peerServiceSocket;
 	struct sockaddr_in peerAdr;
 	PeerType peerType;
 };
@@ -125,6 +124,16 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 		std::cout<<"Connection request forwarded."<<std::endl;
 		break;
 	}
+	case MessageType::HostDisconnected:
+		std::cout<<"Host disconnected: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl;
+		for(auto it = hostsInfos.begin(); it != hostsInfos.end(); ++it)
+		{
+			if(hostInfos.peerAdr == message.adr)
+			{
+				hostsInfos.erase(it);
+			}
+		}
+		break;
 	default: 
 		std::cerr<<"Error: Unexpected message."<<std::endl;
 		exit(-1);
