@@ -128,7 +128,7 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 		std::cout<<"Host disconnected: "<<inet_ntoa(message.adr.sin_addr)<<":"<<ntohs(message.adr.sin_port)<<std::endl;
 		for(auto it = hostsInfos.begin(); it != hostsInfos.end(); ++it)
 		{
-			if((*it)->peerAdr.sin_addr == message.adr.sin_addr && (*it)->peerAdr.sin_port == message.adr.sin_port)
+			if((*it)->peerAdr.sin_addr.s_addr == message.adr.sin_addr.s_addr && (*it)->peerAdr.sin_port == message.adr.sin_port)
 			{
 				delete *it;
 				hostsInfos.erase(it);
