@@ -130,7 +130,6 @@ void handleCommunication(std::vector<PeerInfos*>& hostsInfos,  std::vector<PeerI
 		{
 			if((*it)->peerAdr.sin_addr.s_addr == message.adr.sin_addr.s_addr && (*it)->peerAdr.sin_port == message.adr.sin_port)
 			{
-				delete *it;
 				hostsInfos.erase(it);
 			}
 		}
