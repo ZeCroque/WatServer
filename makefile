@@ -1,10 +1,10 @@
-all: server.out
+all: server.aarch64.out
 
-server.out: server.cpp common.o
-	g++ -Wall -g -o server.out server.cpp common.o
+server.aarch64.out: server.cpp common.o
+	aarch64-linux-gnu-g++ -Wall -g -o server.aarch64.out server.cpp common.o
 
 common.o: common.cpp
-	g++ -Wall -g -c -o common.o common.cpp
+	aarch64-linux-gnu-g++ -Wall -g -c -o common.o common.cpp
 
 clean:
 	rm -rf *.o
