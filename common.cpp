@@ -2,26 +2,26 @@
 
 #include <iostream>
 
-int createUDPSocket(int port)
-{
-  int sock;
-  static struct sockaddr_in addr;
+#pragma comment(lib, "Ws2_32.lib")
 
-  sock = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sock == -1)
+SOCKET createUDPSocket(int port)
+{
+  SOCKET sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if (sock == INVALID_SOCKET)
   {
-    perror("erreur création socket");
-    return -1;
+    std::cerr << "socket failed: " << WSAGetLastError() << std::endl;
+    return INVALID_SOCKET;
   }
 
-  bzero(&addr, sizeof(struct sockaddr_in));
+  sockaddr_in addr = {};
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
-  addr.sin_addr.s_addr=htonl(INADDR_ANY);
-  if( bind(sock, (struct sockaddr*)&addr, sizeof(addr))== -1 )
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  if (bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == SOCKET_ERROR)
   {
-    perror("erreur bind");
-    return -1;
+    std::cerr << "bind failed: " << WSAGetLastError() << std::endl;
+    closesocket(sock);
+    return INVALID_SOCKET;
   }
 
   return sock;
